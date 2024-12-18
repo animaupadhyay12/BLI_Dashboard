@@ -14,13 +14,14 @@ st.write("This dashboard displays the latest Bureau of Labor Statistics (BLS) da
 
 # Button to fetch new data
 if st.button("Fetch New Data"):
-    fetch_bls_data()  # Run the fetch function
-    st.success("New data fetched successfully! Refresh the page to see the updates.")
+    fetch_bls_data()  # Fetch the latest data
+    st.success("New data fetched successfully! Refreshing the page...")
+    st.experimental_rerun()
 
 # Display the last fetch date
 if os.path.exists(DATE_TRACKER_FILE):
     with open(DATE_TRACKER_FILE, "r") as file:
-        last_fetch_date = json.load(file).get("last_fetch", "Unknown")
+        last_fetch_date = json.load(file).get("last_fetch", "No date available")
         st.subheader(f"Last Data Update: {last_fetch_date}")
 else:
     st.warning("No fetch date found. Please fetch new data.")
@@ -33,7 +34,7 @@ if os.path.exists(DATA_FILE):
     st.subheader("Data Table")
     st.write(data)
 
-    # Data visualization
+    # Visualizations
     st.subheader("Data Visualization")
     series_names = data['Series Name'].unique()
 
