@@ -4,11 +4,9 @@ import pandas as pd
 import datetime
 import os
 
-# File paths
 DATE_TRACKER_FILE = "last_fetch_date.json"
 DATA_FILE = "bls_data.csv"
 
-# Mapping Series IDs to human-readable names
 SERIES_NAME_MAP = {
     "LNS14000000": "Unemployment Rate (16+ years)",
     "CES0000000001": "Total Nonfarm Employment",
@@ -20,12 +18,10 @@ SERIES_NAME_MAP = {
 }
 
 def update_fetch_date():
-    """Update the last fetch date to today."""
     with open(DATE_TRACKER_FILE, "w") as file:
         json.dump({"last_fetch": datetime.datetime.now().strftime("%Y-%m-%d")}, file)
 
 def fetch_bls_data():
-    """Fetch data from the BLS API and append it to the existing dataset."""
     headers = {'Content-type': 'application/json'}
     current_year = datetime.datetime.now().year
     payload = json.dumps({
@@ -55,7 +51,6 @@ def fetch_bls_data():
         if all_series_data:
             df_new = pd.DataFrame(all_series_data)
 
-            # Append to existing data without duplicates
             if os.path.exists(DATA_FILE):
                 df_existing = pd.read_csv(DATA_FILE)
                 df_combined = pd.concat([df_existing, df_new]).drop_duplicates()
