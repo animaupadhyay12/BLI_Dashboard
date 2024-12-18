@@ -8,6 +8,17 @@ import os
 DATA_FILE = "bls_data.csv"
 DATE_TRACKER_FILE = "last_fetch_date.json"
 
+# Mapping Series IDs to human-readable names
+SERIES_NAME_MAP = {
+    "LNS14000000": "Unemployment Rate (16+ years)",
+    "CES0000000001": "Total Nonfarm Employment",
+    "LNS11000000": "Civilian Labor Force Level",
+    "LNS12000000": "Civilian Employment Level",
+    "LNS13000000": "Civilian Unemployment Level",
+    "CES0500000002": "Average Weekly Hours - Total Private",
+    "CES0500000007": "Average Hourly Earnings - Total Private"
+}
+
 # App title and description
 st.title("BLS Monthly Data Dashboard")
 st.write("This dashboard displays the latest Bureau of Labor Statistics (BLS) data trends.")
@@ -40,7 +51,10 @@ if os.path.exists(DATA_FILE):
     series_ids = data['Series ID'].unique()
     
     for series_id in series_ids:
-        # Create a subset of data for the current series
+        # Get the descriptive name from the mapping dictionary
+        series_name = SERIES_NAME_MAP.get(series_id, series_id)  # Fallback to series_id if not found
+
+        st.write(f"### {series_name}")  # Display the descriptive name
         series_data = data[data['Series ID'] == series_id].copy()
         series_data['Date'] = pd.to_datetime(series_data[['Year', 'Month']].assign(day=1))
         series_data = series_data.sort_values('Date')
@@ -48,7 +62,7 @@ if os.path.exists(DATA_FILE):
         # Plot the data
         fig, ax = plt.subplots()
         ax.plot(series_data['Date'], series_data['Value'], marker='o', linestyle='-')
-        ax.set_title(f"Trend for Series: {series_id}")
+        ax.set_title(f"Trend for {series_name}")  # Title with the descriptive name
         ax.set_xlabel("Date")
         ax.set_ylabel("Value")
         ax.grid(True)
