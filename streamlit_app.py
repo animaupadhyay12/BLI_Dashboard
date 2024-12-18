@@ -9,30 +9,30 @@ from fetch_bls_data import fetch_bls_data  # Import the data fetching function
 DATA_FILE = "bls_data.csv"
 DATE_TRACKER_FILE = "last_fetch_date.json"
 
-def check_and_update_data():
-    """Fetch new data at the beginning of the month if not already updated."""
-    today = datetime.datetime.now()
+# def check_and_update_data():
+#     """Fetch new data at the beginning of the month if not already updated."""
+#     today = datetime.datetime.now()
 
-    # Check if the fetch date file exists and read the last fetch date
-    if os.path.exists(DATE_TRACKER_FILE):
-        with open(DATE_TRACKER_FILE, "r") as file:
-            last_fetch_date = json.load(file).get("last_fetch", None)
-    else:
-        last_fetch_date = None
+#     # Check if the fetch date file exists and read the last fetch date
+#     if os.path.exists(DATE_TRACKER_FILE):
+#         with open(DATE_TRACKER_FILE, "r") as file:
+#             last_fetch_date = json.load(file).get("last_fetch", None)
+#     else:
+#         last_fetch_date = None
 
-    # Determine if a new fetch is needed (first day of the month or missing data)
-    if last_fetch_date is None or today.strftime("%Y-%m") > last_fetch_date[:7]:
-        st.info("Fetching new data for the beginning of the month...")
-        fetch_bls_data()
-        st.success("Data updated successfully!")
-    else:
-        st.success(f"Data is already up-to-date. Last updated: {last_fetch_date}")
+#     # Determine if a new fetch is needed (first day of the month or missing data)
+#     if last_fetch_date is None or today.strftime("%Y-%m") > last_fetch_date[:7]:
+#         st.info("Fetching new data for the beginning of the month...")
+#         fetch_bls_data()
+#         st.success("Data updated successfully!")
+#     else:
+#         st.success(f"Data is already up-to-date. Last updated: {last_fetch_date}")
 
 # App title
 st.title("BLS Monthly Data Dashboard")
 st.write("This dashboard displays the latest Bureau of Labor Statistics (BLS) data trends.")
 
-check_and_update_data()
+# check_and_update_data()
 
 # Display the last fetch date
 if os.path.exists(DATE_TRACKER_FILE):
