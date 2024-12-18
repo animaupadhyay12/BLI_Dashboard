@@ -56,13 +56,13 @@ def fetch_bls_data():
             df_new = pd.DataFrame(all_series_data)
 
             # Append to existing data without duplicates
-            if os.path.exists(DATA_FILE):
-                df_existing = pd.read_csv(DATA_FILE)
-                df_combined = pd.concat([df_existing, df_new]).drop_duplicates()
-            else:
-                df_combined = df_new
+            # if os.path.exists(DATA_FILE):
+            #     df_existing = pd.read_csv(DATA_FILE)
+            #     #df_combined = pd.concat([df_existing, df_new]).drop_duplicates()
+            # else:
+            #     df_combined = df_new
 
-            df_combined.to_csv(DATA_FILE, index=False)
+            df_new.to_csv(DATA_FILE, index=False)
             update_fetch_date()
             print("Data successfully fetched and appended.")
         else:
