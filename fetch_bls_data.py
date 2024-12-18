@@ -30,7 +30,7 @@ def fetch_bls_data():
     current_year = datetime.datetime.now().year
     payload = json.dumps({
         "seriesid": list(SERIES_NAME_MAP.keys()),
-        "startyear": str(current_year - 1),  # Keep at least one year of historical data
+        "startyear": str(current_year - 1),
         "endyear": str(current_year)
     })
 
@@ -64,7 +64,7 @@ def fetch_bls_data():
 
             df_combined.to_csv(DATA_FILE, index=False)
             update_fetch_date()
-            print("Data successfully fetched and appended to", DATA_FILE)
+            print("Data successfully fetched and appended.")
         else:
             print("No data was returned.")
 
