@@ -19,64 +19,57 @@ SERIES_NAME_MAP = {
     "CES0500000007": "Average Hourly Earnings - Total Private"
 }
 
-def should_update_data():
-    """Check if the data needs to be updated based on the last fetch date."""
-    if not os.path.exists(DATE_TRACKER_FILE):
-        return True
-    with open(DATE_TRACKER_FILE, "r") as file:
-        data = json.load(file)
-        last_fetch_date = datetime.datetime.strptime(data["last_fetch"], "%Y-%m-%d")
-    return (datetime.datetime.now() - last_fetch_date).days >= 30
-
 def update_fetch_date():
     """Update the last fetch date to today."""
     with open(DATE_TRACKER_FILE, "w") as file:
         json.dump({"last_fetch": datetime.datetime.now().strftime("%Y-%m-%d")}, file)
 
 def fetch_bls_data():
-    """Fetch data from the BLS API and save it with descriptive names."""
+    """Fetch data from the BLS API and append it to the existing dataset."""
     headers = {'Content-type': 'application/json'}
     current_year = datetime.datetime.now().year
-    last_year = current_year - 1
     payload = json.dumps({
-        "seriesid": list(SERIES_NAME_MAP.keys()),  # Use keys from the mapping
-        "startyear": str(last_year),
+        "seriesid": list(SERIES_NAME_MAP.keys()),
+        "startyear": str(current_year - 1),  # Keep at least one year of historical data
         "endyear": str(current_year)
     })
 
-    # Make the API request
-    response = requests.post('https://api.bls.gov/publicAPI/v2/timeseries/data/', data=payload, headers=headers)
-    json_data = response.json()
+    try:
+        response = requests.post('https://api.bls.gov/publicAPI/v2/timeseries/data/', data=payload, headers=headers)
+        response.raise_for_status()
+        json_data = response.json()
 
-    # Process the API response
-    all_series_data = []
-    for series in json_data.get('Results', {}).get('series', []):
-        series_id = series['seriesID']
-        series_name = SERIES_NAME_MAP.get(series_id, series_id)  # Default to series_id if name is missing
+        all_series_data = []
+        for series in json_data.get('Results', {}).get('series', []):
+            series_id = series['seriesID']
+            series_name = SERIES_NAME_MAP.get(series_id, series_id)
+            for item in series['data']:
+                if 'M01' <= item['period'] <= 'M12':  # Monthly data only
+                    all_series_data.append({
+                        "Series Name": series_name,
+                        "Year": int(item['year']),
+                        "Month": int(item['period'][1:]),
+                        "Value": float(item['value'])
+                    })
 
-        for item in series['data']:
-            # Only include monthly data (M01-M12)
-            if 'M01' <= item['period'] <= 'M12':
-                all_series_data.append({
-                    "Series Name": series_name,
-                    "Year": int(item['year']),
-                    "Month": int(item['period'][1:]),
-                    "Value": float(item['value'])
-                })
+        if all_series_data:
+            df_new = pd.DataFrame(all_series_data)
 
-    # Save data to CSV
-    if all_series_data:
-        df = pd.DataFrame(all_series_data)
-        df.to_csv(DATA_FILE, index=False)
-        update_fetch_date()
-        print("Data successfully fetched and saved to", DATA_FILE)
-    else:
-        print("No data was returned. Check the API response for details.")
+            # Append to existing data without duplicates
+            if os.path.exists(DATA_FILE):
+                df_existing = pd.read_csv(DATA_FILE)
+                df_combined = pd.concat([df_existing, df_new]).drop_duplicates()
+            else:
+                df_combined = df_new
+
+            df_combined.to_csv(DATA_FILE, index=False)
+            update_fetch_date()
+            print("Data successfully fetched and appended to", DATA_FILE)
+        else:
+            print("No data was returned.")
+
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching data: {e}")
 
 if __name__ == "__main__":
-    # Fetch data if the file doesn't exist or the data is outdated
-    if not os.path.exists(DATA_FILE) or should_update_data():
-        print("Fetching updated data...")
-        fetch_bls_data()
-    else:
-        print("Data is already up to date. No fetch required.")
+    fetch_bls_data()
