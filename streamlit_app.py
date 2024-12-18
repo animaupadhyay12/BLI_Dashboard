@@ -33,7 +33,6 @@ st.write("This dashboard displays the latest Bureau of Labor Statistics (BLS) da
 
 # check_and_update_data()
 
-# Display the last fetch date
 if os.path.exists(DATE_TRACKER_FILE):
     with open(DATE_TRACKER_FILE, "r") as file:
         last_fetch_date = json.load(file).get("last_fetch", "No date available")
