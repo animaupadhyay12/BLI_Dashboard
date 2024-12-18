@@ -12,6 +12,12 @@ DATE_TRACKER_FILE = "last_fetch_date.json"
 st.title("BLS Monthly Data Dashboard")
 st.write("This dashboard displays the latest Bureau of Labor Statistics (BLS) data trends.")
 
+# Button to fetch the latest data
+if st.button("Fetch Latest Data"):
+    from fetch_bls_data import fetch_bls_data  # Import the function
+    fetch_bls_data()  # Call the function to fetch new data
+    st.success("Data updated! Refresh the page to see the changes.")
+
 # Display last fetch date
 if os.path.exists(DATE_TRACKER_FILE):
     with open(DATE_TRACKER_FILE, "r") as file:
