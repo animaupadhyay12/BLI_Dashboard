@@ -2,27 +2,27 @@ name: Update BLS Data
 
 on:
   schedule:
-    - cron: "0 0 1 * *"  # Runs at midnight UTC on the 1st of every month
-  workflow_dispatch:  # Allows manual triggering
+    - cron: "0 0 1 * *"  # Run at midnight UTC on the 1st day of every month
+  workflow_dispatch:  # Allows manual triggering of the workflow
 
 jobs:
   fetch-data:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Use an Ubuntu virtual machine
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4  # Pull the repository code
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.11
+          python-version: 3.11  # Set Python version
 
       - name: Install Dependencies
-        run: pip install requests pandas
+        run: pip install requests pandas  # Install required Python libraries
 
-      - name: Run Data Fetch Script
-        run: python fetch_bls_data.py
+      - name: Fetch Latest BLS Data
+        run: python fetch_bls_data.py  # Run your script to fetch data
 
       - name: Commit and Push Changes
         run: |
@@ -32,4 +32,4 @@ jobs:
           git commit -m "Automated data update: $(date)"
           git push
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Authenticate to push changes
