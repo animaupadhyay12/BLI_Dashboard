@@ -14,9 +14,8 @@ st.write("This dashboard displays the latest Bureau of Labor Statistics (BLS) da
 
 # Button to fetch new data
 if st.button("Fetch New Data"):
-    fetch_bls_data()  # Fetch the latest data
-    st.success("New data fetched successfully! Refreshing the page...")
-    st.experimental_rerun()
+    fetch_bls_data()  # Run the fetch function
+    st.success("New data fetched successfully! Please refresh the page to see updates.")
 
 # Display the last fetch date
 if os.path.exists(DATE_TRACKER_FILE):
